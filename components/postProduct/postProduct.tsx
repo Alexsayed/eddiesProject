@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
-import React, { useEffect, useRef } from "react";
+// import React, { useEffect, useRef } from "react";
+import ReactDOM from 'react-dom';
 
 import { mutate } from "swr";
 // import Product, { Products } from "../../models/products";
 import { Products } from "../../models/products";
+import size, { Sizes } from "../../models/sizes";
+import { arrayBuffer } from "stream/consumers";
 // import Product from "../../models/products";
 // // ******************************************************ORIGINAL ******************************************************             
 // interface FormData {
@@ -102,6 +105,7 @@ type Props = {
   product: Products;
   forNewProduct?: boolean;
 
+
 };
 // type Props = {
 //   formId: string;
@@ -109,16 +113,57 @@ type Props = {
 //   forNewProduct?: boolean;
 
 // };
-
-const Form = ({ formId, product, forNewProduct = true }: Props) => {
+// sizeElements is to display html elements for each category sizes and to reduce the line of code in this file.
+const sizeElements = (arg: string[]) => {
+  return arg.map((elem, i) => {
+    return (
+      < div key={i} className="inline-block w-20 ">
+        <label htmlFor={elem} className="inline-block">{elem}</label>
+        <input type="checkbox" name={elem} className="inline-block w-10" />
+      </div>
+    )
+  })
+}
+// Handle Post product.
+const Form = ({ formId, product, forNewProduct = true, }: Props) => {
   const router = useRouter();
   const contentType = "application/json";
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
-  const menSizes = useRef<HTMLDivElement | null>(null);
-  const womenSizes = useRef<HTMLDivElement | null>(null);
-
-
+  const menSizes = useRef<HTMLDivElement>(null);
+  const womenSizes = useRef<HTMLDivElement>(null);
+  const categories = useRef<HTMLSelectElement>(null);
+  const menCategories = ['Jackets', 'Jeans', 'Pants', 'Shoes', 'Sweaters', 'Tees'];
+  const WomenCategories = ['Dresses', 'Jackets', 'Jeans', 'Pants', 'Shoes', 'Skirts', 'Sweaters', 'Tops',];
+  const menShoeSizes = ['8', '9', '9/5', '10', '10/5', '11', '12'];
+  const womenShoeSizes = ['6', '7', '8', '9', '10'];
+  const menNumericSizes = ['28', '30', '32', '34', '36', '38']
+  const womenNumericSizes = ['24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',]
+  // const menTeeSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  // We asign all Alpha size in one array and then use it based on (Switch Cases)
+  const alphaSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  // Women and Men category states
+  const [menCategoryItems, setMenItems] = useState<any>([]);
+  const [womenCategoryItems, setWomenItems] = useState<any>([]);
+  // Men and Women sizes state.
+  const [sizeItemsForAll, setSizeItemsForAll] = useState<any>({
+    // Men sizes states
+    menJackets: [],
+    menJeans: [],
+    menPants: [],
+    menShoes: [],
+    menSweaters: [],
+    menTees: [],
+    // Women sizes states
+    womenDresses: [],
+    womenJackets: [],
+    womenJeans: [],
+    womenPants: [],
+    womenShoes: [],
+    womenSkirts: [],
+    womenSweaters: [],
+    womenTops: [],
+  });
 
   // const [newProduct, setForm] = useState({
   //   productName: product.productName,
@@ -168,6 +213,8 @@ const Form = ({ formId, product, forNewProduct = true }: Props) => {
 
   // onChange event we are processing the data and setting it.
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,) => {
+    let getValues = e.target.value;
+
     // // ******************************************************ORIGINAL ******************************************************  
     // const target = e.target;
     // // Below we are assigning values of the input elements. If the name of the targeted element is (inStock), then we are assigning value of the (inStock) to Boolean and other elements as String or Number.
@@ -178,27 +225,228 @@ const Form = ({ formId, product, forNewProduct = true }: Props) => {
     // // setForm({ ...newProduct, [name]: value });
     // // // ******************************************************ORIGINAL ******************************************************  
     // setForm({ ...newProduct, [name]: value });
-    console.log('=========e.target Men False', e.target.value)
+    // console.log('=========e.target Men False', e.target.value)
+    // console.log('=========menSizes.current', menSizes.current?.children[0].className)
+    // console.log('=========categories.current ', categories.current?.children[1].className)
+
+
+
     // next up add all sizes for men and women to HTML
     // // // ******************************************************ON HOLD ******************************************************  
+    // next up: continue finishing all cases for all sizes using(switch case) and maybe we should add(m or w) in front of all(menCategories or womenCategories)
+    switch (e.target.name) {
+      case 'gender':
+        console.log('=========gender case ')
 
+        switch (getValues) {
+          case 'Men':
+            console.log('=========Men case ')
+            // Reset all sizes back to null
+            setSizeItemsForAll([null]);
+            // Reset women categories to null
+            setWomenItems([null])
+            setMenItems([...menCategoryItems, menCategories.map((elem, index) => <option key={index} value={`m${elem}`}>{elem}</option>)]);
+            break;
+          case 'Women':
+            console.log('=========Women case ')
+            // Reset all sizes back to null
+            setSizeItemsForAll([null])
+            // Reset men categories to null
+            setMenItems([null]);
+            setWomenItems([...womenCategoryItems, WomenCategories.map((elem, index) => <option key={index} value={`w${elem}`}>{elem}</option>)]);
+            break;
+        }
+        break;
+      case 'category':
+        console.log('=========category case ')
+        switch (getValues) {
+          case 'mJackets':
+            console.log('=========jacket case ');
+            // Set men jacket sizes input elements 
+            // ===============================original ==========================
+            // setSizeItemsForAll({             
+
+            // menJackets: alphaSizes.map((elem, i) => {
+            //   return (
+            //     < div key={i} className="inline-block w-20 ">
+            //       <label htmlFor={elem} className="inline-block">{elem}</label>
+            //       <input type="checkbox" name={elem} className="inline-block w-10" />
+            //     </div>
+            //   )
+            // })
+            // });
+            // ===============================original ==========================
+            setSizeItemsForAll({
+              // sizeElements function is defined above. 
+              menJackets: sizeElements(alphaSizes)
+            });
+            break;
+          case 'mJeans':
+            console.log('=========Jeans case ')
+            // Set men jeans sizes input elements            
+            setSizeItemsForAll({
+              // sizeElements function is defined above. 
+              menJeans: sizeElements(menNumericSizes)
+            });
+
+            break;
+          case 'mPants':
+            console.log('=========pants case ')
+            // Set men pants sizes input elements                        
+            setSizeItemsForAll({
+              // sizeElements function is defined above. 
+              menPants: sizeElements(menNumericSizes)
+            });
+
+            break;
+          case "mShoes":
+            console.log('=========shoes case ')
+            // Set men shoes sizes input elements                        
+            setSizeItemsForAll({
+              // sizeElements function is defined above. 
+              menShoes: sizeElements(menShoeSizes)
+            });
+
+            break;
+          case 'mSweaters':
+            console.log('=========mPants case ');
+            // Set men sweaters sizes input elements                                    
+            setSizeItemsForAll({
+              // sizeElements function is defined above. 
+              menSweaters: sizeElements(alphaSizes)
+            });
+            break;
+          case 'mTees':
+            console.log('=========tees case ')
+            // Set men tees sizes input elements                                    
+            setSizeItemsForAll({
+              // sizeElements function is defined above.
+              menTees: sizeElements(alphaSizes)
+            });
+            break;
+          case 'wDresses':
+            // Set women dress sizes input elements                                    
+            setSizeItemsForAll({
+              // sizeElements function is defined above.
+              womenDresses: sizeElements(alphaSizes)
+            });
+            console.log('=========wDresses case ')
+            break;
+          case 'wJackets':
+            // Set women jackets sizes input elements   
+            setSizeItemsForAll({
+              // sizeElements function is defined above.
+              womenJackets: sizeElements(alphaSizes)
+            });
+            console.log('=========wJacket case ')
+
+            break;
+          case 'wJeans':
+            // Set women jeans sizes input elements               
+            setSizeItemsForAll({
+              // sizeElements function is defined above.
+              womenJeans: sizeElements(womenNumericSizes)
+            });
+            break;
+          case 'wPants':
+            // Set women pants sizes input elements               
+            setSizeItemsForAll({
+              // sizeElements function is defined above.
+              womenPants: sizeElements(womenNumericSizes)
+            });
+            console.log('=========wPants case ')
+
+            break;
+          case 'wShoes':
+            // Set women shoes sizes input elements               
+            setSizeItemsForAll({
+              // sizeElements function is defined above.
+              womenShoes: sizeElements(womenShoeSizes)
+            });
+            console.log('=========wShoes case ')
+
+            break;
+          case 'wSkirts':
+            // Set women skirt sizes input elements               
+            setSizeItemsForAll({
+              // sizeElements function is defined above.
+              womenSkirts: sizeElements(alphaSizes)
+            });
+            console.log('=========wSkirts case ')
+
+            break;
+          case 'wSweaters':
+            // Set women sweater sizes input elements               
+            setSizeItemsForAll({
+              // sizeElements function is defined above.
+              womenSweaters: sizeElements(alphaSizes)
+            });
+            console.log('=========wSweaters case ')
+
+            break;
+          case 'wTops':
+            // Set women top sizes input elements               
+            setSizeItemsForAll({
+              // sizeElements function is defined above.
+              womenTops: sizeElements(alphaSizes)
+            });
+            console.log('=========wTops case ')
+            break;
+            next up: send an error message if user did not select any which will be the default case
+          default:
+            console.log('=========default case ')
+
+            alert('default switch')
+            break;
+        }
+        break;
+
+    }
+
+
+    // switch (getValues) {
+    //   case 'Men':
+    //     setWomenItems([null])
+    //     setMenItems([...menCategoryItems, menCategories.map((elem, index) => <option key={index} value={elem}>{elem}</option>)]);
+
+    //     break;
+
+    //   case 'Women':
+    //     setMenItems([null])
+    //     setWomenItems([...womenCategoryItems, WomenCategories.map((elem, index) => <option key={index} value={elem}>{elem}</option>)]);
+    //     break;
+    // }
+
+    // if (categories.current!.options[1] != undefined) {
+    //   console.log('=========categories.current.choldren ', categories.current?.children[1])
+    //   console.log('=========categories.current ', categories.current?.options[1])
+    // }
+    // // // ******************************************************ON HOLD ******************************************************  
     // if (e.target.value === 'Men') {
-    //   console.log("myContainer.. false women", menSizes.current);
-
-    //   if (menSizes.current) {
-    //     menSizes.current.style.display = '';
-    //     womenSizes.current!.style.display = 'none';
-    //   }
+    //   setWomenItems([null])
+    //   setMenItems([...menCategoryItems, menCategories.map((elem, index) => <option key={index} value={elem}>{elem}</option>)]);
     // } else {
-    //   if (womenSizes.current) {
-    //     womenSizes.current.style.display = '';
-    //     menSizes.current!.style.display = 'none';
-    //   }
-
+    //   setMenItems([null])
+    //   setWomenItems([...womenCategoryItems, WomenCategories.map((elem, index) => <option key={index} value={elem}>{elem}</option>)]);
+    // }
+    // if (e.target.value === 'shoes') {
+    //   setMenShoe([...menShoeSizeItems, menShoeSizes.map((elem, index) => {
+    //     return (
+    //       < div key={index} className="inline-block w-20 ">
+    //         <label htmlFor={elem} className="inline-block">{elem}</label>
+    //         <input type="checkbox" name={elem} className="inline-block w-10" />
+    //       </div>
+    //     )
+    //   })]);
     // }
     // // // ******************************************************ON HOLD ******************************************************  
 
     setForm({ ...newProduct, [e.target.name]: e.target.value });
+
+
+    // // // ******************************************************ON HOLD ******************************************************  
+
+
 
   };
   // onSubmit we are send data to backend. 
@@ -219,6 +467,9 @@ const Form = ({ formId, product, forNewProduct = true }: Props) => {
     }
   };
 
+
+
+
   // }
   // }
 
@@ -231,27 +482,34 @@ const Form = ({ formId, product, forNewProduct = true }: Props) => {
         <input type="number" name="price" onChange={handleChange} required />
         <label htmlFor="productImg">Product Image</label>
         <input type="text" name="productImg" onChange={handleChange} required />
-        <label htmlFor="category">Category</label>
-        <select name="category" className="border rounded-lg" onChange={handleChange} required  >
-          <option value="" >choose one</option>
-          <option value="Tees" >Trees</option>
-          <option value="Sweaters">Sweaters</option>
-          <option value="Tops">Tops</option>
-          <option value="Jeans">Jeans</option>
-          <option value="Pants">Pants</option>
-          <option value="Jackets">Jackets</option>
-          <option value="Shoes">Shoes</option>
-          <option value="Accessories">Accessories</option>
-          <option value="Underwear">Underwear</option>
-        </select>
-        <label htmlFor="brand">Brand</label>
-        <input type="text" name="brand" onChange={handleChange} required />
         <label htmlFor="gender">Gender</label>
         <select name="gender" className="border rounded-lg" onChange={handleChange}   >
           <option value="" >choose one</option>
           <option value="Men" >Men</option>
           <option value="Women">Women</option>
         </select>
+
+        <label htmlFor="category">Category</label>
+        <select name="category" id="categoryID" ref={categories} className="border rounded-lg" onChange={handleChange} required  >
+
+          <option value="" >choose one</option>
+          {menCategoryItems}
+          {womenCategoryItems}
+          {/* <option className="dresses" value="dresses" style={{ display: 'none' }}>dresses</option>
+          <option className="tees" value="tees" style={{ display: 'none' }}>Tees</option>
+          <option className="sweaters" value="sweaters" style={{ display: 'none' }}>Sweaters</option>
+          <option className="tops" value="tops" style={{ display: 'none' }}>Tops</option>
+          <option className="jeans" value="jeans" style={{ display: 'none' }}>Jeans</option>
+          <option className="pants" value="pants" style={{ display: 'none' }}>Pants</option>
+          <option className="jackets" value="jackets" style={{ display: 'none' }}>Jackets</option>
+          <option className="shoes" value="shoes" style={{ display: 'none' }}>Shoes</option>
+          <option className="skirts" value="skirts" style={{ display: 'none' }} >skirts</option>
+          <option className="accessories" value="accessories" style={{ display: 'none' }}>Accessories</option>
+          <option className="underwear" value="underwear" style={{ display: 'none' }}>Underwear</option> */}
+        </select>
+        <label htmlFor="brand">Brand</label>
+        <input type="text" name="brand" onChange={handleChange} required />
+
         <label htmlFor="kids">Kids</label>
         <select name="kids" className="border rounded-lg" onChange={handleChange}   >
           <option value="" >choose one</option>
@@ -262,18 +520,58 @@ const Form = ({ formId, product, forNewProduct = true }: Props) => {
         <input type="text" name="color" onChange={handleChange} />
         {/* <label htmlFor="size">Size</label>
         <input type="text" name="size" onChange={handleChange} required /> */}
-        {/* <fieldset>
+        {/* <div>{menShoeSizeItems}1</div>
+        <div>{menTeeSizeItems}</div>
+        <div>{menJacketSizeItems}</div>
+        <div>{menSweaterSizeItems}</div>
+        <div>{menPantsSizeItems}</div>
+        <div>{menJeansSizeItems}</div>
+        <div>{womenDressesSizeItems}</div>
+        <div>{womenJacketSizeItems}</div>
+        <div>{womenJeansSizeItems}</div>
+        <div>{womenPantsSizeItems}</div>
+        <div>{womenShoeSizeItems}</div>
+        <div>{womenSkirtSizeItems}</div>
+        <div>{womenSweaterSizeItems}</div>
+        <div>{womenTopSizeItems}</div> */}
+        <div>{sizeItemsForAll.womenDresses}</div>
+        <div>{sizeItemsForAll.womenJackets}</div>
+        <div>{sizeItemsForAll.womenJeans}</div>
+        <div>{sizeItemsForAll.womenPants}</div>
+        <div>{sizeItemsForAll.womenShoes}</div>
+        <div>{sizeItemsForAll.womenSkirts}</div>
+        <div>{sizeItemsForAll.womenSweaters}</div>
+        <div>{sizeItemsForAll.womenTops}</div>
+
+        <div>{sizeItemsForAll.menJackets}</div>
+        <div>{sizeItemsForAll.menJeans}</div>
+        <div>{sizeItemsForAll.menPants}</div>
+        <div>{sizeItemsForAll.menShoes}</div>
+        <div>{sizeItemsForAll.menSweaters}</div>
+        <div>{sizeItemsForAll.menTees}</div>
+        <div>{sizeItemsForAll.sizeElements}</div>
+
+
+
+        <fieldset>
           <legend>Select sizes:</legend>
-          <div style={{ color: 'blue', fontSize: '20px', display: 'none' }} ref={menSizes}>
+
+          <div ref={menSizes} style={{ color: 'blue', fontSize: '20px', display: 'none' }} >
+            <div className="pantsOrJeans" style={{ color: 'blue', display: 'none' }}>Pants Or Jeans</div>
+            <div className="shoes" style={{ color: 'blue', display: 'none' }}>Shoes</div>
+            <div className="tees" style={{ color: 'blue', display: 'none' }}>Tees</div>
+            <div className="jackets" style={{ color: 'blue', display: 'none' }}>Jackets</div>
+            <div className="sweaters" style={{ color: 'blue', display: 'none' }}>Sweaters</div>
+
             <label htmlFor="size">Men Sizes</label>
             <input type="checkbox" name="size" onChange={handleChange} />
           </div>
-          <div style={{ color: 'red', fontSize: '20px', display: 'none' }} ref={womenSizes}>
+          <div ref={womenSizes} style={{ color: 'red', fontSize: '20px', display: 'none' }} >
             <label htmlFor="size"> WomenSize</label>
             <input type="checkbox" name="size" onChange={handleChange} />
           </div>
 
-        </fieldset> */}
+        </fieldset>
 
 
 
