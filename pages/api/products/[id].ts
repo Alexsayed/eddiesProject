@@ -3,6 +3,8 @@ import dbConnect from "../../../lib/dbConnect";
 import Pet from "../../../models/Pet";
 import User from "../../../models/Users";
 import Product from "../../../models/products";
+import Size from "../../../models/sizes";
+
 // import User from "../../models/Users";
 
 
@@ -27,8 +29,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // console.log('========users', users)
 
   switch (method) {
-    case "GET" /* Get a model by its ID */:
-      // console.log('==========method from api/pet/[id] GET HIT', method);
+    case "GET"/* Get a model by its ID */:
+      console.log('==========method from api/product/[id] GET HIT', method);
 
       try {
         // const pet = await Pet.findById(id);
@@ -43,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // *********************ORIGINAL *********************************
         // console.log('========== api/pet/[id] GET HIT tregerd', id);
 
-        const productFromAPI = await Product.findById(id);
+        const productFromAPI = await Product.findById(id).populate({ path: 'sizes', model: Size }).exec();;
         if (!productFromAPI) {
           return res.status(400).json({ success: false });
         }

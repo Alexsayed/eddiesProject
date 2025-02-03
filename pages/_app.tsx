@@ -1,6 +1,6 @@
 import "../css/style.css";
 import "../css/form.css";
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useEffect } from 'react';
 import Head from "next/head";
 import Link from "next/link";
@@ -11,8 +11,9 @@ import Navbar from "../components/navbar/navbar";
 import HomePage from "../components/home/landingPage";
 import User from "../models/Users";
 import PostProduct from "../components/postProduct/postProduct";
+import { CartProvider } from '../state/CartContext'
 
-// console.log('=====AppProps1', typeof { AppProps });
+// console.log('=====AppProps1', AppProps);
 // console.log('=====Footer', Footer);
 
 // async function getData() {
@@ -28,7 +29,17 @@ import PostProduct from "../components/postProduct/postProduct";
 function MyApp({ Component, pageProps }: AppProps) {
   // console.log('=====Component from --app.tsx', Component)
   // console.log('=====pageProps  --app.tsx', pageProps)
+  // console.log('=====AppProps  --app.tsx', AppProps.pageProps)
 
+  // const [count, setCount] = useState('some text');
+  // console.log('===========someValue inside', someValue)
+  // console.log('===========count inside', count)
+
+  // const updateCount = (newCount: any) => {
+  //   console.log('===========newCount', newCount)
+
+  //   setCount(newCount);
+  // }
 
   // dbConnect();
   // console.log('=====User', User);
@@ -60,29 +71,35 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
 
     <>
+
       <Head>
         <title>Pet Care App</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
       </Head>
-      <Navbar />
-      {/* <HomePage /> */}
-      <div className="top-bar">
-        <div className="nav">
-          <Link href="/">Homeeee</Link>
-          <Link href="/new">Add Pet</Link>
+      <CartProvider>
+        <Navbar />
+
+        {/* <HomePage /> */}
+        <div className="top-bar">
+          <div className="nav">
+            <Link href="/">Homeeee</Link>
+            <Link href="/new">Add Pet</Link>
+          </div>
+
+          <img
+            id="title"
+            src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Pet_logo_with_flowers.png"
+            alt="pet care logo"
+          ></img>
         </div>
+        <div className="wrapper grid"> pageProps
+          <Component {...pageProps} />
 
-        <img
-          id="title"
-          src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Pet_logo_with_flowers.png"
-          alt="pet care logo"
-        ></img>
-      </div>
-      <div className="wrapper grid"> pageProps
-        <Component {...pageProps} />
+        </div>
+      </CartProvider>
 
-      </div>
       <Footer />
+
     </>
   );
 

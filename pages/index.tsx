@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { GetServerSideProps } from "next";
 import { useState, useEffect } from "react";
 import dbConnect from "../lib/dbConnect";
 // import Pet, { Pets } from "../models/Pet";
-import Pet, { Users } from "../models/Users";
+// import Pet, { Users } from "../models/Users";
 // import User from "../models/Users";
 import Product, { Products } from "../models/products";
-import { GetServerSideProps } from "next";
+import Size, { ISizes } from '../models/sizes';
 import HomePage from "../components/home/landingPage";
 
 
@@ -16,9 +17,17 @@ import HomePage from "../components/home/landingPage";
 // type Props = {
 //   pets: Users[];
 // };
+type Product = {
+  // name: string;
+  // price: number;
+  sizes: ISizes[];
+  // Add other fields for products
+};
 type Props = {
   allProducts: Products[];
+  // sizes:
   // products1: String;
+
 };
 
 
@@ -35,6 +44,7 @@ const Index = ({ allProducts }: Props) => {
 
 
     <>
+
       < HomePage getAllProducts={allProducts} />
       {/* <div>ddjdjdjfffff</div> */}
       {/* {pets.map((pet) => (
@@ -83,12 +93,38 @@ const Index = ({ allProducts }: Props) => {
 /* Retrieves pet(s) data from mongodb database */
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
   await dbConnect();
-
+  // // =================================ORIGINAL =========================\
+  // const productsResult = await Product.find({});
+  // if (!productsResult) {
+  //   return {
+  //     notFound: true,
+  //   };
+  // }
+  // var stringifyAllProduct = JSON.parse(JSON.stringify(productsResult));
+  // return { props: { allProducts: stringifyAllProduct } };
+  // // =================================ORIGINAL =========================
   /* find all the data in our database */
   // const result = await Pet.find({});
-  const productsResult = await Product.find({});
-  // console.log('=========productsResult', productsResult)
-  const stringifyAllProduct = JSON.parse(JSON.stringify(productsResult));
+  // const productsResult = await Product.find({})
+  // const getsizes = await Size.find({});
+  // console.log('=====getsizes', getsizes)
+  // fing Size model won't get here so there for it throw error, maybe i need to give a condition befor displaying sizes
+
+
+
+
+
+
+
+  // console.log('=========productsResult ahah', productsResult);
+  // console.log('=======createdProductt from index POST request', createdProduct)
+
+
+
+
+
+
+  // console.log('=========stringifyAllProduct', stringifyAllProduct);
 
   /* Ensures all objectIds and nested objectIds are serialized as JSON data */
   // const pets = result.map((doc) => {
@@ -101,7 +137,20 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
   // });
   // return { props: { pets: pets } };
   // return { props: { products1: products2 } };
-  return { props: { allProducts: stringifyAllProduct } };
+  // return { props: { allProducts: stringifyAllProduct } };
+
+  try {
+
+    // const productsResult = await Product.find({}).populate("sizes").exec();
+    // To Populate mogoose model we HAVE TO populate it like below: populate({ path: 'sizes', model: Size }) otherwise won't work.
+    const productsResult = await Product.find({}).populate({ path: 'sizes', model: Size }).exec();
+    const stringifyAllProduct = JSON.parse(JSON.stringify(productsResult));
+    return { props: { allProducts: stringifyAllProduct } };
+  } catch (err) {
+    return { props: { allProducts: [] } };
+  }
+
+
 
 };
 
