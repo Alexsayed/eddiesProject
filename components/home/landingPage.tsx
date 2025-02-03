@@ -10,12 +10,17 @@ import { Products } from "../../models/products";
 type Props = {
   // editFormId: string;
   getAllProducts: Products[];
+  // getAllProducts: string[];
   // forNewProduct?: boolean;
+
 };
 
 
 // Handle home page
 const HomePage = ({ getAllProducts }: Props) => {
+  // console.log('=========getAllProducts HomePage', getAllProducts[0].sizes.menSizes.jackets);
+  // console.log('=========getAllProducts HomePage', getAllProducts);
+
   // // =======================================Original ============================================
   // const [products, setProduct] = useState<any>([]);
 
@@ -32,6 +37,8 @@ const HomePage = ({ getAllProducts }: Props) => {
   //   fetchData();
   // }, []);
   // // =======================================Original ============================================
+
+
   return (
     <>
       <div className="border w-full"> ahhah
@@ -42,7 +49,7 @@ const HomePage = ({ getAllProducts }: Props) => {
 
           {getAllProducts.map((item: any, i: any) => (
             <li key={i} className="border h-72 m-1.5 inline-block rounded-lg sm:w-2/5 md:w-1/4 lg:w-1/5 truncate" >
-              {/* <span>{item._id}</span> */}
+              <span>{item.id}</span>
 
               <div className="relative w-0 h-0 float-right">
                 <div className="inline-block absolute right-1/4"> <BsPen /></div>

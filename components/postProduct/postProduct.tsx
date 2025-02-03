@@ -4,9 +4,9 @@ import { useRouter } from "next/router";
 import ReactDOM from 'react-dom';
 
 import { mutate } from "swr";
-// import Product, { Products } from "../../models/products";
+// import product, { Products } from "../../models/products";
 import { Products } from "../../models/products";
-import size, { Sizes } from "../../models/sizes";
+import Size, { ISizes } from "../../models/sizes";
 import { arrayBuffer } from "stream/consumers";
 // import Product from "../../models/products";
 // // ******************************************************ORIGINAL ******************************************************             
@@ -104,9 +104,8 @@ type Props = {
   formId: string;
   product: Products;
   forNewProduct?: boolean;
-
-
 };
+
 // type Props = {
 //   formId: string;
 //   product: {};
@@ -114,28 +113,33 @@ type Props = {
 
 // };
 // sizeElements is to display html elements for each category sizes and to reduce the line of code in this file.
-const sizeElements = (arg: string[]) => {
-  return arg.map((elem, i) => {
-    return (
-      < div key={i} className="inline-block w-20 ">
-        <label htmlFor={elem} className="inline-block">{elem}</label>
-        <input type="checkbox" name={elem} className="inline-block w-10" />
-      </div>
-    )
-  })
-}
+// const sizeElements = (arg: string[]) => {
+//   return arg.map((elem, i) => {
+//     return (
+//       < div key={i} className="inline-block w-20 ">
+//         <label htmlFor={elem} className="inline-block">{elem}</label>
+//         <input type="checkbox" name={elem} className="inline-block w-10" onChange={handleChange} />
+//       </div>
+//     )
+//   })
+// }
+next up: we need to set color as array so there will be multi color array of < options > and admin selecting one or many
 // Handle Post product.
 const Form = ({ formId, product, forNewProduct = true, }: Props) => {
   const router = useRouter();
   const contentType = "application/json";
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
+
+  // const [newProduct, setForm] = useState<any>([]);
+  const [newProduct, setForm] = useState<Products[]>([]);
+
   const menSizes = useRef<HTMLDivElement>(null);
   const womenSizes = useRef<HTMLDivElement>(null);
   const categories = useRef<HTMLSelectElement>(null);
   const menCategories = ['Jackets', 'Jeans', 'Pants', 'Shoes', 'Sweaters', 'Tees'];
   const WomenCategories = ['Dresses', 'Jackets', 'Jeans', 'Pants', 'Shoes', 'Skirts', 'Sweaters', 'Tops',];
-  const menShoeSizes = ['8', '9', '9/5', '10', '10/5', '11', '12'];
+  const menShoeSizes = ['8', '9', '9_5', '10', '10_5', '11', '12'];
   const womenShoeSizes = ['6', '7', '8', '9', '10'];
   const menNumericSizes = ['28', '30', '32', '34', '36', '38']
   const womenNumericSizes = ['24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',]
@@ -174,7 +178,16 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
   //   created: product.created
   // });
 
-
+  const sizeElements = (arg: string[]) => {
+    return arg.map((elem, i) => {
+      return (
+        < div key={i} className="inline-block w-20 ">
+          <label htmlFor={elem} className="inline-block">{elem}</label>
+          <input type="checkbox" name={elem} className="inline-block w-10 ahahha" onChange={handleChange} />
+        </div>
+      )
+    })
+  }
 
   // const [newProductForm, setForm] = useState([]);
 
@@ -182,8 +195,9 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
   // const [newProduct, setForm] = useState([]);
   // // ******************************************************ORIGINAL ******************************************************  
 
-  const [newProduct, setForm] = useState<any>([]);
-  const postProduct = async (newProduct: Products) => {
+
+  // const [newProduct, setForm] = useState([]);
+  const postProduct = async (newProduct: Products[]) => {
     // // ******************************************************ORIGINAL ******************************************************  
     // const postProduct = async (value1: any) => {
     // // ******************************************************ORIGINAL ******************************************************     
@@ -218,8 +232,7 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
     // // ******************************************************ORIGINAL ******************************************************  
     // const target = e.target;
     // // Below we are assigning values of the input elements. If the name of the targeted element is (inStock), then we are assigning value of the (inStock) to Boolean and other elements as String or Number.
-    // const value =
-    //   target.name === "inStock" ? (target as HTMLInputElement).checked : target.value;
+    // const value = target.name === "inStock" ? (target as HTMLInputElement).checked : target.value;
     // const name = target.name;
     // // Using the spread syntax (...) to set array of all values.
     // // setForm({ ...newProduct, [name]: value });
@@ -229,7 +242,13 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
     // console.log('=========menSizes.current', menSizes.current?.children[0].className)
     // console.log('=========categories.current ', categories.current?.children[1].className)
 
-
+    // console.log('=========e.target.name  ', e.target.name)
+    // console.log('=========e.target.value  ', e.target.value)
+    // menShoeSizes
+    // womenShoeSizes
+    // menNumericSizes
+    // womenNumericSizes
+    // alphaSizes
 
     // next up add all sizes for men and women to HTML
     // // // ******************************************************ON HOLD ******************************************************  
@@ -392,7 +411,7 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
             });
             console.log('=========wTops case ')
             break;
-            next up: send an error message if user did not select any which will be the default case
+          // next up: send an error message if user did not select any which will be the default case
           default:
             console.log('=========default case ')
 
@@ -439,12 +458,50 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
     //     )
     //   })]);
     // }
-    // // // ******************************************************ON HOLD ******************************************************  
-
-    setForm({ ...newProduct, [e.target.name]: e.target.value });
 
 
-    // // // ******************************************************ON HOLD ******************************************************  
+
+    // setForm({ ...newProduct, [name]: value });
+
+    // const foundSizeName = [menShoeSizes, womenShoeSizes, menNumericSizes, womenNumericSizes, alphaSizes].some(arr => arr.includes(e.target.name));
+    const concatSizesArray = menShoeSizes.concat(womenShoeSizes, menNumericSizes, womenNumericSizes, alphaSizes);
+    const found = concatSizesArray.find((element) => element === e.target.name);
+    console.log('====================found', found);
+    // const value = e.target.name === "28" ? (e.target as HTMLInputElement).checked : e.target.value;
+    // const value = concatSizesArr.find((element) => element === e.target.name) ? (e.target as HTMLInputElement).checked : e.target.value;
+    const value = found ? (e.target as HTMLInputElement).checked : e.target.value;
+    console.log('====================value1', value);
+
+    // next up: un until here we are getting checkboxes now send them to backend
+    // if (foundSizeName) {
+    //   const getCheckboxes = (e.target as HTMLInputElement).checked
+    //   console.log('=========e.target.name includes  ', e.target.name)
+    //   console.log('=========e.target.value includes ', e.target.value)
+    //   console.log('=========foundSizeName  ', foundSizeName)
+    //   console.log('=========getCheckboxes  ', getCheckboxes)
+
+    // } else {
+    //   console.log('=========foundSizeName  NOT ', foundSizeName)
+
+    //   console.log('=========e.target.name Not includes ', e.target.name)
+
+    // }
+    setForm((prevState) => ({
+
+      ...prevState,
+
+      [e.target.name]: value,
+
+    }));
+    console.log('====ddd', newProduct);
+
+    // setForm((prevState) => ({
+    //   ...prevState,
+    //   ...newProduct, [e.target.name]: e.target.value
+    // }));
+    // // // ******************************************************ON HOLD ORIGINAL******************************************************  
+    // setForm({ ...newProduct, [e.target.name]: e.target.value });
+    // // // ******************************************************ON HOLD ORIGINAL******************************************************  
 
 
 
@@ -459,6 +516,8 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
     // } else {
     //   setErrors({ errs });
     // }
+    console.log('=========cnewProduct submit ', newProduct);
+    console.log('=========cnewProduct submit typeof ', typeof newProduct);
 
     if (forNewProduct === true) {
       postProduct(newProduct);
@@ -483,7 +542,7 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
         <label htmlFor="productImg">Product Image</label>
         <input type="text" name="productImg" onChange={handleChange} required />
         <label htmlFor="gender">Gender</label>
-        <select name="gender" className="border rounded-lg" onChange={handleChange}   >
+        <select name="gender" className="border rounded-lg" onChange={handleChange} required  >
           <option value="" >choose one</option>
           <option value="Men" >Men</option>
           <option value="Women">Women</option>
@@ -507,6 +566,38 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
           <option className="accessories" value="accessories" style={{ display: 'none' }}>Accessories</option>
           <option className="underwear" value="underwear" style={{ display: 'none' }}>Underwear</option> */}
         </select>
+        <div className="ahahah"  >
+          {sizeItemsForAll.womenDresses}
+          {sizeItemsForAll.womenJackets}
+          {sizeItemsForAll.womenJeans}
+          {sizeItemsForAll.womenPants}
+          {sizeItemsForAll.womenShoes}
+          {sizeItemsForAll.womenSkirts}
+          {sizeItemsForAll.womenSweaters}
+          {sizeItemsForAll.womenTops}
+          {sizeItemsForAll.menJackets}
+          {sizeItemsForAll.menJeans}
+          {sizeItemsForAll.menPants}
+          {sizeItemsForAll.menShoes}
+          {sizeItemsForAll.menSweaters}
+          {sizeItemsForAll.menTees}
+        </div>
+        {/* <div>{sizeItemsForAll.womenDresses}</div>
+        <div>{sizeItemsForAll.womenJackets}</div> 
+        <div>{sizeItemsForAll.womenJeans}</div> 
+        <div>{sizeItemsForAll.womenPants}</div>
+        <div>{sizeItemsForAll.womenShoes}</div>
+        <div>{sizeItemsForAll.womenSkirts}</div>
+        <div>{sizeItemsForAll.womenSweaters}</div>
+        <div>{sizeItemsForAll.womenTops}</div>
+
+        <div>{sizeItemsForAll.menJackets}</div>
+        <div>{sizeItemsForAll.menJeans}</div>
+        <div>{sizeItemsForAll.menPants}</div>
+        <div>{sizeItemsForAll.menShoes}</div>
+        <div>{sizeItemsForAll.menSweaters}</div>
+        <div>{sizeItemsForAll.menTees}</div>
+        <div className="what is this ">{sizeItemsForAll.sizeElements}</div> */}
         <label htmlFor="brand">Brand</label>
         <input type="text" name="brand" onChange={handleChange} required />
 
@@ -534,22 +625,7 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
         <div>{womenSkirtSizeItems}</div>
         <div>{womenSweaterSizeItems}</div>
         <div>{womenTopSizeItems}</div> */}
-        <div>{sizeItemsForAll.womenDresses}</div>
-        <div>{sizeItemsForAll.womenJackets}</div>
-        <div>{sizeItemsForAll.womenJeans}</div>
-        <div>{sizeItemsForAll.womenPants}</div>
-        <div>{sizeItemsForAll.womenShoes}</div>
-        <div>{sizeItemsForAll.womenSkirts}</div>
-        <div>{sizeItemsForAll.womenSweaters}</div>
-        <div>{sizeItemsForAll.womenTops}</div>
 
-        <div>{sizeItemsForAll.menJackets}</div>
-        <div>{sizeItemsForAll.menJeans}</div>
-        <div>{sizeItemsForAll.menPants}</div>
-        <div>{sizeItemsForAll.menShoes}</div>
-        <div>{sizeItemsForAll.menSweaters}</div>
-        <div>{sizeItemsForAll.menTees}</div>
-        <div>{sizeItemsForAll.sizeElements}</div>
 
 
 
@@ -605,6 +681,7 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
       </form>
     </>
   )
+
 
 }
 
