@@ -62,11 +62,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       let getStorage: string | null = localStorage.getItem('items');
       // const getStorage: string | null = localStorage.getItem('items');
       // const parsedItems = getStorage ? JSON.parse(getStorage) : [];
-      console.log('===== getStorage', getStorage);
+      console.log('===== getStorage', JSON.parse(getStorage));
 
 
       if (getStorage) {
-        console.log('No items in cart', JSON.parse(getStorage));
+        // console.log('No items in cart', JSON.parse(getStorage));
         //   console.log('items in cart top', getStorage);
         //   // Store it in the state
         //   // setStoredItems(JSON.parse(getStorage));
@@ -77,6 +77,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
 
   }, []);
+  // next up: handle so a use can select only 1 color and 1 size per addToCart, if a user want multi size or color then they have add to car new order
   // Add items to Shopping cart.
   const addToCart = (item: CartItem) => {
     // const addToCart = (item: Products) => {
@@ -108,6 +109,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       const matchingSize = parsedItems.find(cartItem => cartItem.size === item.size);
       console.log('===============matching color', matchingColor)
       console.log('===============matching size', matchingSize)
+      console.log('===============existingItem ', existingItem)
       // if exist
       if (existingItem && matchingColor && matchingSize) {
         console.log('===============all 3 matchings are true', existingItem, matchingSize, matchingColor)
