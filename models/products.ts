@@ -23,7 +23,7 @@ export interface Products extends Document {
   brand: string,
   gender: string,
   kids: string,
-  color: string,
+  color: string[],
   // sizes: string[],
   sizes: ISizes,
   // size: {
@@ -69,7 +69,12 @@ const productSchema = new mongoose.Schema<Products>({
   brand: String,
   gender: String,
   // kids: String,
-  color: String,
+  // color: [{
+  //   type: String
+  // }],
+  color: {
+    type: [String],
+  },
   // size: String,
   // sizes: [
   //   {
