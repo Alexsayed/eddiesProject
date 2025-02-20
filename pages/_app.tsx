@@ -92,7 +92,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             alt="pet care logo"
           ></img>
         </div>
-        <div className="wrapper grid"> pageProps
+        <div className="wrapper grid w-full"> pageProps
           <Component {...pageProps} />
 
         </div>

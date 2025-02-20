@@ -34,6 +34,7 @@ const PetPage = ({ getProduct, }: Props) => {
   // const [message, setMessage] = useState("");
   const [message, setMessage] = useState('Hello, world!');
 
+
   // next time: try to do it like below
   // const handleDelete = async () => {
   //   const petID = router.query.id;
@@ -48,7 +49,7 @@ const PetPage = ({ getProduct, }: Props) => {
   //     setMessage("Failed to delete the pet.");
   //   }
   // };
-  // console.log('==============getProduct', getProduct) 
+  console.log('==============getProduct from [id]/index', getProduct)
 
 
   return (
