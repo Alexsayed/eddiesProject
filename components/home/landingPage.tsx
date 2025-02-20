@@ -19,7 +19,7 @@ type Props = {
 // Handle home page
 const HomePage = ({ getAllProducts }: Props) => {
   // console.log('=========getAllProducts HomePage', getAllProducts[0].sizes.menSizes.jackets);
-  // console.log('=========getAllProducts HomePage', getAllProducts);
+  console.log('=========getAllProducts HomePage', getAllProducts);
 
   // // =======================================Original ============================================
   // const [products, setProduct] = useState<any>([]);

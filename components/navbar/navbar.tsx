@@ -13,6 +13,7 @@ import Link from "next/link";
 
 
 import { useCart } from '../../state/CartContext';
+import { link } from 'fs';
 
 
 // var someValue: number;
@@ -91,7 +92,10 @@ const Navbar = () => {
             // </div>
           )} */}
         {cart.length ? (
-          <div className="float-right h-12">Cart: {cart.length}</div>
+          <Link href={'shoppingcart'}>
+            <div className="float-right h-12">Cart: {cart.length}</div>
+          </Link>
+
           // cart.map((cartItem, index) => (
           //   <Link href={cartItem.id} key={index}>
           //     <div key={index} className=" getCartClassname float-right h-12">
