@@ -62,7 +62,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       let getStorage: string | null = localStorage.getItem('items');
       // const getStorage: string | null = localStorage.getItem('items');
       // const parsedItems = getStorage ? JSON.parse(getStorage) : [];
-      console.log('===== getStorage', JSON.parse(getStorage));
+      // console.log('===== getStorage', JSON.parse(getStorage));
 
 
       if (getStorage) {
