@@ -7,7 +7,9 @@ import Size from "../../../models/sizes";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
-  // console.log('======api/pets/index HIT')
+  // console.log('======req from api/product/index', req)
+  // const { query: { id }, method } = req;
+  // console.log('==========iddddd from products', id);
   // console.log('======api/pets/index HIT method', method)
   await dbConnect();
 
@@ -50,6 +52,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       break;
     case "POST":
       try {
+        console.log('======api/pets/index HIT method POST', method)
+
         // const pet = await Pet.create(
         //   req.body,
         // ); /* create a new model in the database */

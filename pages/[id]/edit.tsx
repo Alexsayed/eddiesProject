@@ -7,12 +7,15 @@ import React from 'react';
 // import { useParams } from 'next/navigation';
 import dbConnect from "../../lib/dbConnect";
 import Product, { Products } from "../../models/products";
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
+// import { GetServerSideProps, GetServerSidePropsContext } from "next";
+import { GetServerSidePropsContext } from "next";
 // import { GetServerSideProps } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-
+import Size from '../../models/sizes';
+import { useSession } from 'next-auth/react';
+import { getSession } from 'next-auth/react';
 interface Params extends ParsedUrlQuery {
   id: string;
 }
@@ -31,8 +34,68 @@ type Props = {
 // productId comes from line: 17 and line: 17 gets the params id from returned value at the bottom.
 // const EditPet = ({ productId }: Props) => {
 // **************************************** Original *************************
-
+// fucking sign in shit, keep working of fucking edit restriction
 const EditPet = ({ getProduct }: Props) => {
+  // const { data: session, status } = useSession();
+  // const router = useRouter();
+  // console.log('===============================,session', session)
+  // console.log('===============================,status', status)
+  // console.log('===============================')
+  // console.log('===============================session.user.role', session)
+
+
+  // **************************************** ON HOLD *************************
+
+
+  // useEffect(() => {
+  // If user is not signed in, redirect to the sign-in page with the current URL
+  // if (status === "unauthenticated") {
+  //   console.log('===============================router.asPath', router.asPath)
+
+  //   router.push(`/auth/signin?redirect=${router.asPath}`); // ORIGINAL
+  //   // router.push(`/auth/signin?redirect=${router.asPath}`); 
+  //   // console.log('===============================status Not auth', status)
+
+  // }
+  // // }, [status, router]);
+  // if (status === 'loading') {
+  //   console.log('===============================,status', status)
+  //   return <div>Loading...</div>;
+  // }
+  // // If authenticated, show the page content
+  // if (status === "authenticated") {
+  // **************************************** ON HOLD *************************
+
+
+  // **************************************** ON HOLD *************************
+
+  // if (!session) {
+  //   console.log('===============================!session', session)
+
+  //   // Redirect to sign-in page if not authenticated
+  //   // router.push('/auth/signin');
+  //   router.push(`/auth/signin?redirect=${router.asPath}`);
+  //   return null;
+  // }
+  // if (session.user.role !== 'admin') {
+  //   console.log('===============================session.user.role', session.user.role)
+
+  //   // Redirect to a different page if the user is not an admin
+  //   router.push('/');
+  //   return null;
+  // }
+  // if (session.user.role === 'admin') {
+  //   console.log('===============================admin', session.user.role);
+  //   console.log('===============================session', session);
+  //   console.log('===============================session', session.expires.toLocaleString());
+  //   console.log('===============================date', Date.now.toString());
+
+  //   // Redirect to a different page if the user is not an admin
+  //   // router.push('/');
+  //   // return null;
+  // }
+  // console.log('===============================session after', session)
+  // **************************************** ON HOLD *************************
 
 
   // **************************************** ON HOLD *************************
@@ -50,7 +113,7 @@ const EditPet = ({ getProduct }: Props) => {
   // **************************************** ON HOLD *************************
 
 
-  console.log('==============getProduct', getProduct)
+
 
 
 
@@ -78,38 +141,106 @@ const EditPet = ({ getProduct }: Props) => {
   // return <Form formId="edit-pet-form" petForm={petForm} forNewPet={false} />;
   // **************************************** Original *************************  
   // next up:  create link to all products so we can pick whichever we want to update
+  // if (status === "authenticated") {
+  // console.log('===============================status auth', status)
+
   return (
     // Pass the data(getProducts) to components/editproduct/EditForm, which it has a fuction with 2 arg ( function editProduct({ formId1, product }) )  
     // <EditForm editFormId="edit-pet-form1" product={getProducts} />
     <EditForm editFormId="edit-pet-form1" product={getProduct} />
   )
+  // }
+  // return null; // This ensures that the page doesn't render before authentication check
+
 };
 // 
 // export const getServerSideProps: GetServerSideProps<Props> = async () => {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  // Step 1: Get the session to check if the user is authenticated
+  const session = await getSession(context);
+  console.log('=============================== session', session)
 
-export const getServerSideProps: GetServerSideProps<Props, Params> = async ({ params, }: GetServerSidePropsContext) => {
+  // Step 2: If no session, redirect the user to the signin page
+  if (!session) {
+    console.log('=============================== context.resolvedUrl', context.resolvedUrl)
+
+    const callbackUrl = encodeURIComponent(context.resolvedUrl);
+    // const callbackUrl = context.resolvedUrl;
+    console.log('=============================== callbackUrl /edit', callbackUrl)
+
+    return {
+      redirect: {
+        destination: `/auth/signin?callbackUrl=${callbackUrl}`,
+        permanent: false,
+      },
+    };
+  }
+  // Step 3: Connect to the database
   await dbConnect();
+  const { id } = context.params!;
+  console.log('=============================== id edit page', id)
+  const productResult = await Product.findById({ _id: id });
+  console.log('=============================== productResult', productResult)
 
-  if (params) {
-    // Access the property of params.ID; only if the params object is defined.
-    params.id;
-  } else {
+  if (!productResult) {
+    console.log('======if edit ')
+
     return {
       notFound: true,
     };
+  } else {
+    const sizeField = productResult.gender === 'Women' ? 'womenSizes' : 'menSizes';
+    await productResult.populate({ path: 'sizes', model: Size, select: sizeField });
+    const stringifyProduct = JSON.parse(JSON.stringify(productResult));
+    // const paramsId = JSON.parse(JSON.stringify(params.id));
+    return {
+      props: {
+        // assign paramsId to productId, which is defind at the top of our code. line: 21
+        // productId: paramsId,
+        // assign stringifyProduct to getProduct, which is defind at the top of our code. line: 22
+        getProduct: stringifyProduct,
+      },
+    };
   }
-  const productResult = await Product.findById({ _id: params.id });
-  const stringifyProduct = JSON.parse(JSON.stringify(productResult));
+}
+// export const getServerSideProps = async (context: GetServerSidePropsContext<Params>) => {
+// **************************************** ON HOLD *************************
+// export const getServerSideProps: GetServerSideProps<Props, Params> = async ({ params }: GetServerSidePropsContext) => {
+//   await dbConnect();
+//   console.log('===============================params', params)
 
-  // const paramsId = JSON.parse(JSON.stringify(params.id));
-  return {
-    props: {
-      // assign paramsId to productId, which is defind at the top of our code. line: 21
-      // productId: paramsId,
-      // assign stringifyProduct to getProduct, which is defind at the top of our code. line: 22
-      getProduct: stringifyProduct,
-    },
-  };
-};
+
+//   if (params) {
+//     // Access the property of params.ID; only if the params object is defined.
+//     params.id;
+//   } else {
+//     return {
+//       notFound: true,
+//     };
+//   }
+//   const productResult = await Product.findById({ _id: params.id });
+//   if (!productResult) {
+//     console.log('======if edit ')
+
+//     return {
+//       notFound: true,
+//     };
+//     // }
+//   } else {
+//     const sizeField = productResult.gender === 'Women' ? 'womenSizes' : 'menSizes';
+//     await productResult.populate({ path: 'sizes', model: Size, select: sizeField });
+//     const stringifyProduct = JSON.parse(JSON.stringify(productResult));
+//     // const paramsId = JSON.parse(JSON.stringify(params.id));
+//     return {
+//       props: {
+//         // assign paramsId to productId, which is defind at the top of our code. line: 21
+//         // productId: paramsId,
+//         // assign stringifyProduct to getProduct, which is defind at the top of our code. line: 22
+//         getProduct: stringifyProduct,
+//       },
+//     };
+//   }
+// };
+//   // **************************************** ON HOLD *************************
 
 export default EditPet;

@@ -27,7 +27,7 @@ type Props = {
 
 const shoppingcart = ({ cartItems }: Props) => {
   // const shoppingcart = () => {
-  const bs = [{ bsName: 'BsAlex', bsLast: 'bsSayed' }];
+
 
   // const strigstringifyBS = JSON.stringify(bs);
   // console.log('=========strigstringifyBS', strigstringifyBS)

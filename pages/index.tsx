@@ -2,12 +2,15 @@ import Link from "next/link";
 import { GetServerSideProps } from "next";
 import { useState, useEffect } from "react";
 import dbConnect from "../lib/dbConnect";
+import { ParsedUrlQuery } from "querystring";
+
 // import Pet, { Pets } from "../models/Pet";
 // import Pet, { Users } from "../models/Users";
 // import User from "../models/Users";
 import Product, { Products } from "../models/products";
 import Size, { ISizes } from '../models/sizes';
 import HomePage from "../components/home/landingPage";
+import NavBar from "../components/navbar/navbar";
 
 
 // type Props = {
@@ -23,12 +26,16 @@ type Product = {
   sizes: ISizes[];
   // Add other fields for products
 };
-type Props = {
-  allProducts: Products[];
-  // sizes:
-  // products1: String;
+// type Props = {
+//   allProducts: Products[];
+//   searchQuery?: string;
 
-};
+// };
+interface Props {
+  // searchQuery?: string; 
+  allProducts: Products[];
+}
+
 
 
 // const Index = ({ pets }: Props) => {
@@ -40,11 +47,18 @@ const Index = ({ allProducts }: Props) => {
   // const data = {} as any;
 
   // console.log('=============, products1 index', allProducts)
+
+  // const [searchQuery, setSearchQuery] = useState<string>('');
+  // const handleSearch = (query: string) => {
+  //   console.log('=======handleSearch HIT', query)
+  //   setSearchQuery(query);
+  //   console.log('=======handleSearch searchQuery', searchQuery)
+
+  // };
   return (
-
-
     <>
-
+      {/* <NavBar onSearch={handleSearch} /> */}
+      {/* < HomePage getAllProducts={allProducts} searchQuery={searchQuery ?? ''} /> */}
       < HomePage getAllProducts={allProducts} />
       {/* <div>ddjdjdjfffff</div> */}
       {/* {pets.map((pet) => (
@@ -89,11 +103,19 @@ const Index = ({ allProducts }: Props) => {
     </>
   )
 };
-
+// // =================================ORIGINAL =========================\
 /* Retrieves pet(s) data from mongodb database */
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
-  await dbConnect();
   // // =================================ORIGINAL =========================\
+  // export const getServerSideProps: GetServerSideProps<Props, Params> = async ({ params, }: GetServerSidePropsContext) => {
+  await dbConnect();
+
+
+
+
+
+  // // =================================ORIGINAL =========================\
+
   // const productsResult = await Product.find({});
   // if (!productsResult) {
   //   return {
@@ -145,9 +167,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
     // To Populate mogoose model we HAVE TO populate it like below: populate({ path: 'sizes', model: Size }) otherwise won't work.
     const productsResult = await Product.find({}).populate({ path: 'sizes', model: Size }).exec();
     const stringifyAllProduct = JSON.parse(JSON.stringify(productsResult));
-    return { props: { allProducts: stringifyAllProduct } };
+    return { props: { allProducts: stringifyAllProduct, } };
   } catch (err) {
-    return { props: { allProducts: [] } };
+    return { props: { allProducts: [], } };
   }
 
 

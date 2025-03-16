@@ -72,19 +72,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         //     .catch((err) => {
         //       console.log('=======err from index', err);
         //     })
-        // update the document
+        // // ================================ONHOLD====================================
+        // update a product.
         const updateProduct = await Product.findByIdAndUpdate(
           { _id: id },
           {
-            // productName: req.body.productName,
-            // price: req.body.price,
-            // productImg: req.body.productImg,
-            // inStock: req.body.inStock,
-            // author: req.body.author
-
-
-
-
             productName: req.body.productName,
             price: req.body.price,
             productImg: req.body.productImg,
@@ -93,18 +85,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             gender: req.body.gender,
             kids: req.body.kids,
             color: req.body.color,
-            size: req.body.size,
+            // size: req.body.size,
             author: req.body.author,
             inStock: req.body.inStock,
           },
           { new: true }
         );
+        // Updating product sizes model by it's ID. req.body.sizes: has all the info of the size interface which is coming from editForm.tsx
+        await Size.findByIdAndUpdate(
+          { _id: req.body.sizes._id },
+          req.body.sizes,
+          { new: true }
+        );
         if (!updateProduct) {
           return res.status(400).json({ success: false });
         }
-        console.log('======= updateProduct', updateProduct);
-
         res.status(200).json({ success: true, data: updateProduct });
+        // // ================================ONHOLD====================================
       } catch (error) {
         res.status(400).json({ success: false });
       }
