@@ -1,9 +1,6 @@
 import { createContext, useState, useEffect } from 'react';
 import product, { Products } from "../../models/products";
-
-type Props = {
-  getCartItems: any;
-};
+import { useCart } from '../../state/CartContext';
 interface CartItem {
   id: string;
   productName: string;
@@ -17,87 +14,54 @@ interface CartItem {
   quantity: number;
 }
 let getTotal = 0;
-// const Cart = ({ getCartItems, }: Props,) => {
+// handle shopping cart.
 const Cart = () => {
-  // console.log('=========getCartItems', getCartItems)
-
-  // const [storedItems, setStoredItems] = useState<string | null>(null);
   const [storedItems, setStoredItems] = useState<CartItem[]>([]);
   const [checkoutTotal, setTotal] = useState<number>(0);
-  // const [storedItems, setStoredItems] = useState<getCartItems>([]);
-  // let parsedCartItems1: any = [];
   useEffect(() => {
-    //   if (typeof window !== 'undefined' && window.localStorage) {
-    //     const getStorage: string | null = localStorage.getItem('items');
-    //     if (getStorage) {
-    //       try {
-    //         const parsedCartItems = JSON.parse(getStorage);
-    //         setStoredItems(parsedCartItems);
-    //         console.log('===== parsedCartItems', parsedCartItems)
-
-    //       } catch (error) {
-    //         console.error('Error parsing stored items from localStorage', error);
-    //       }
-
-    //     } else {
-    //       console.log('No items found in localStorage');
-    //     }
-
-
-    //   }
-    // }, []);
 
     if (typeof window !== 'undefined' && window.localStorage) {
       const getStorage: string | null = localStorage.getItem('items');
       if (getStorage !== null) {
-        console.log('=========if')
-
         try {
-          console.log('=========try')
-
-          // const stringifyCartItems = JSON.stringify(getStorage);
-          // console.log('=========stringifyCartItems', stringifyCartItems);
-          // parsedCartItems1 = JSON.parse(getStorage);
           const parsedCartItems = JSON.parse(getStorage);
+          // Sum up prices
           for (let i = 0; i < parsedCartItems.length; i++) {
             getTotal += parsedCartItems[i].price
-            console.log('=========parsedCartItems', typeof parsedCartItems[i].price)
-            console.log('=========getTotal', getTotal)
-            setTotal(getTotal);
           }
+          // Set total price of items.
+          setTotal(getTotal);
+          // Set localStorage items to useState
           setStoredItems(parsedCartItems);
-
-          // var parsedCartItems1 = JSON.parse(stringifyCartItems);
-
-          // const parsedCartItems = JSON.parse(JSON.stringify(getStorage));
-
-          //   const parseStringifyBS = JSON.parse(JSON.stringify(bs));
-          //   //       console.log('===== parsedCartItems', parsedCartItems)
-          //   // return { props: { cartItems: 'ahahah' } };
-          //   // setStoredItems(parsedCartItems);
-
-
         } catch (error) {
           console.error('Error parsing stored items from localStorage', error);
         }
-
-        //   // } else {
-        //   //   console.log('No items found in localStorage');
       }
-
-
     }
   }, []);
-  console.log('===== storedItems', storedItems)
-  // console.log('===== getCartItems', parsedCartItems1[0])
-  // getCartItems.map
+
+
+  // if storedItems are not set yet.
   if (storedItems === null) {
     return <p>Loading...</p>;
   }
-  // next up: continue below
+  // Removing an Item from shopping cart.
+  const removeAnItem = (id: String) => {
+    let items: string | null = localStorage.getItem('items');
+    if (items !== null) {
+      // CartItem[]: is to define the shape of the data.
+      let parsedItems: CartItem[] = JSON.parse(items);
+      // remove an item from parsedItems[] that matches IDs.
+      parsedItems = parsedItems.filter((item) => item.id !== id);
+      // set the updates items to useState.
+      setStoredItems(parsedItems);
+      // Save the updated items back to localStorage.
+      localStorage.setItem('items', JSON.stringify(parsedItems));
+    }
+  }
+  // next up: searching for an item.
   return (
     <>
-
       {storedItems?.length === 0 ? (
         <p>No items in the cart</p>
       ) : (
@@ -131,10 +95,10 @@ const Cart = () => {
                     <p>Brand: {item.brand}</p>
                     <p>Size: {item.size}</p>
                     <div className=''>
-                      Color:<p className="w-4 h-4 inline-block ml-2" style={{ background: `${item.color}` }}></p>
+                      Color:<p className="w-4 h-4 inline-block ml-2 " style={{ background: `${item.color}`, boxShadow: '0px 0px 0.5px 0.5px grey' }}></p>
                     </div>
                     <p>Gender: {item.gender}</p>
-                    <button className='btn'>Remove Item</button>
+                    <button className='btn' onClick={() => removeAnItem(item.id)}>Remove Item</button>
                   </div>
                   <div className='inline-block w-1/6'>
                     <p>{item.price}</p>
@@ -149,16 +113,8 @@ const Cart = () => {
               </li>
             ))}
           </ul>
-
-
-        </div>
-
+        </div >
       )}
-
-
-
-
-
     </>
   )
 }

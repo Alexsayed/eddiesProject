@@ -11,6 +11,8 @@ import { Products } from "../../models/products";
 import Navbar from '../navbar/navbar';
 // import { greet } from '../navbar/navbar';
 import { useCart } from '../../state/CartContext';
+
+
 // import Navbar from "../navbar/navbar";
 // import { add } from "../navbar/navbar";
 // interface CurrentUserContextType {
@@ -81,7 +83,6 @@ const ProductPage = ({ editFormId, productData, }: Props,) => {
   // console.log('===========productData', productData);
   const selectColor = useRef<HTMLSelectElement>(null);
   const [productColor, setColor] = useState<string>('');
-
   // If you want getSize to hold an object of categories with their sizes. Example: Jackets:['S', 'M', 'L', 'XL']
   // const [getSize, setSize] = useState<{ [key: string]: string[] }>({});
   // If you want getSize to be a flat array of sizes (i.e., no categories): Example: ['S', 'M', 'L', 'XL']
@@ -90,12 +91,15 @@ const ProductPage = ({ editFormId, productData, }: Props,) => {
   const [cartProductSize, setCartProductSize] = useState<string>('')
   const [cartProductquantity, setCartProductquantity] = useState<any>();
 
-  // console.log('============productData ', productData);
+  console.log('============productData product ', productData.gender);
+  console.log('============productData product ', productData.gender);
   useEffect(() => {
     // const trueCategories: { [key: string]: string[] } = {};
     // Array to collect all true sizes
     const trueCategories: string[] = [];
     if (productData.gender === 'Women') {
+      console.log('======women gender')
+
       // Loop through each women category sizes 
       for (let [category, sizes] of Object.entries(productData.sizes.womenSizes)) {
         // Filter the sizes object to check for `true` values
@@ -111,6 +115,7 @@ const ProductPage = ({ editFormId, productData, }: Props,) => {
       }
       setSizes(trueCategories)
     } else {
+      console.log('======men gender')
       // Loop through each men category sizes 
       for (let [category, sizes] of Object.entries(productData.sizes.menSizes)) {
         // Filter the sizes object to check for `true` values
@@ -118,15 +123,15 @@ const ProductPage = ({ editFormId, productData, }: Props,) => {
         // If any size is true, add to the result
         if (trueSizes.length > 0) {
           // trueCategories[category] = trueSizes.map(([size]) => size);
-          // trueCategories.push(...trueSizes.map(([size]) => size));
+          trueCategories.push(...trueSizes.map(([size]) => size));
           console.log('=========trueCategories men', trueCategories)
           console.log('=========productSize men', productSize)
-          setSizes([...trueSizes.map(([size]) => size)]);
+          // setSizes([...trueSizes.map(([size]) => size)]);
 
         }
       }
       // ==========original ==============
-      // setSizes(trueCategories);
+      setSizes(trueCategories);
       // ==========original ==============
     }
 

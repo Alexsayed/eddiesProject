@@ -5,7 +5,9 @@ import { mutate } from "swr";
 const Footer = () => {
   return (
     <>
-      <div>hey There im foooter</div>
+      <div className="h-16 ">
+        <p className=" p-2">hey There im foooter</p>
+      </div>
     </>
   )
 }

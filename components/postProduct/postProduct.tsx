@@ -117,13 +117,16 @@ import { arrayBuffer } from "stream/consumers";
 // }
 type Props = {
   formId: string;
-  product: Products;
+  // product: Products;
   forNewProduct?: boolean;
 };
 interface ColorArray {
   colorsData: any[]; // or specify the exact type you expect
   colorElements: JSX.Element[]; // Specifically an array of JSX elements (the input buttons)
 }
+// Extending variables to all files.
+// export const menCategories = ['Jackets', 'Jeans', 'Pants', 'Shoes', 'Sweaters', 'Tees'];
+// export const WomenCategories = ['Dresses', 'Jackets', 'Jeans', 'Pants', 'Shoes', 'Skirts', 'Sweaters', 'Tops',];
 
 
 // type Props = {
@@ -134,15 +137,18 @@ interface ColorArray {
 // };
 
 // Declaring variable here so it won't reset to zero everytime we make changes in the page.
-let colorArray: string[] = [];
+let storeColors: string[] = [];
 
 // next up: we need to set color as array so there will be multi color array of < options > and admin selecting one or many
 // Handle Post product.
-const Form = ({ formId, product, forNewProduct = true, }: Props) => {
+// const Form = ({ formId, product, forNewProduct = true, }: Props) => {
+const Form = ({ formId, forNewProduct = true, }: Props) => {
   const router = useRouter();
   const contentType = "application/json";
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
+  console.log('====================formId', formId)
+  // console.log('====================product', product)
 
   // const [newProduct, setForm] = useState<any>([]);
   const [newProduct, setForm] = useState<Products[]>([]);
@@ -184,7 +190,10 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
   });
   // next up: set up quantity for the product AND find a way to limit the number of item can be add at the < input > and it should not go over 999, for it accepts 999 but visually we can place as many number as we can
   const [quantity, setQuantity] = useState<number>(0);
-
+  const [colorArray, setColorArray] = useState<ColorArray>({
+    colorsData: [],
+    colorElements: [],
+  });
   // Handle setting the sizes
   const sizeElements = (arg: string[]) => {
     return arg.map((elem, i) => {
@@ -201,30 +210,25 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
   // const [moreColor, setMoreColor] = useState<JSX.Element[]>([]);
   // const [colorArray1, setColorArray] = useState<String[]>([]);
 
-  const [colorArray2, setColorArray2] = useState<ColorArray>({
-    colorsData: [],
-    colorElements: [],
-  })
+
 
   const colorInput = useRef<HTMLInputElement | null>(null);
 
   // const keyRef = useRef(0);
-  const addMoreColor = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const addMoreColor = (e: React.MouseEvent<HTMLButtonElement>) => {
     // we raw current Date as a key of eleemnts
     const newKey = Date.now();
     const newColorInput = (
       <div className="inline" key={newKey} >
         <input type="color" name="color" key={newKey} className="w-1/2 inline" ref={colorInput} onChange={handleChange} />
-        <button type="button" className="inline-block btn mt-0" onClick={() => deleteColor(newKey)}>
-          Delete
-        </button>
+        <button type="button" className="inline-block btn mt-0" onClick={() => deleteColor(newKey)}>Delete</button>
         <label htmlFor="quantity" >quantity</label>
-        <input type="number" name="quantity" id="" onChange={handleChange} required />
+        <input type="number" name="quantity" id="" onChange={handleChange} />
 
       </div>
     )
     // Setting the state
-    setColorArray2((prevState) => ({
+    setColorArray((prevState) => ({
       ...prevState,  // Spread the previous state to keep other properties intact
       colorElements: [...prevState.colorElements, newColorInput], // Update only the colorElements array
     }));
@@ -232,21 +236,27 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
   // its working now.next up: clean up the code
   // Remove color elements 
   const deleteColor = (key: Number) => {
-    setColorArray2((prevState) => {
+    console.log('=============key postProduct', key)
+
+    setColorArray((prevState) => {
       // Loop over color elements in the page
       prevState.colorElements.forEach((elem, i) => {
         if (elem.key === key.toString()) {
           // remove a value from color[] based on matching index of the removed color HTML elements 
-          colorArray.splice(i, 1);
+          storeColors.splice(i, 1);
         }
       });
       // Returning updated state with filtered elements
       return {
         ...prevState,
         // update colorData
-        colorsData: colorArray,
+        colorsData: storeColors,
         // filter removes an element and returns the updated values
         colorElements: prevState.colorElements.filter((element, index) => {
+          console.log('=============element.key edit', element.key);
+          console.log('=============element edit', element);
+          console.log('=============colorArray edit', colorArray);
+
           // return that does not match the `key`
           return element.key !== key.toString();
         })
@@ -419,13 +429,13 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
         console.log('=========color case ', e.target.value)
 
         // push the values. we are doing it this way so we Post all the array elems otherwise the last value won't be submited        
-        colorArray.push(e.target.value);
+        storeColors.push(e.target.value);
         // We are disabling the input element after getting it's value, so ONLY one value should come per input element.
         e.target.disabled = true;
         // set the color state
-        setColorArray2((prevState) => ({
+        setColorArray((prevState) => ({
           ...prevState,  // Retaining existing state properties
-          colorsData: colorArray,  // Setting the new colorsData
+          colorsData: storeColors,  // Setting the new colorsData
         }));
         break;
       case 'quantity':
@@ -453,12 +463,14 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
     const found = concatSizesArray.find((element) => element === e.target.name);
     // if Found = true; then treat the elem as a checkbox otherwise as a normal value.
     const value = found ? (e.target as HTMLInputElement).checked : e.target.value;
+    console.log('=======value postProduct', value)
+
     // set the Poduct state
     setForm((prevState) => {
       return {
         ...prevState,
-        // if targeted element name is color then add the colorArray2.colorsData else the Value.
-        [e.target.name]: e.target.name === "color" ? colorArray2.colorsData : value
+        // if targeted element name is color then add the colorArray.colorsData else the Value.
+        [e.target.name]: e.target.name === "color" ? colorArray.colorsData : value
       };
     });
   };
@@ -530,10 +542,10 @@ const Form = ({ formId, product, forNewProduct = true, }: Props) => {
             <option value="Girls">Girls</option>
           </select>
           <div className="color-picker">
-            {/* <div className="inline">
-            <input type="color" name="color" key={0} ref={colorInput} className="w-1/2 block" onChange={handleChange} />
-          </div> */}
-            {colorArray2.colorElements}
+            <div className="inline">
+              <input type="color" name="color" key={0} ref={colorInput} className="w-1/2 block" onChange={handleChange} required />
+            </div>
+            {colorArray.colorElements}
             <button type="button" className="btn" onClick={addMoreColor}>Add More Color</button>
           </div>
 
