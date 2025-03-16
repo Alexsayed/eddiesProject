@@ -1,7 +1,7 @@
 // import mongoose from "mongoose";
 // import mongoose, { Document } from 'mongoose';
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import Size, { ISizes } from './sizes';
+import { ISizes } from './sizes';
 // export interface Products extends mongoose.Document {
 //   productName: string;
 //   price: number;
